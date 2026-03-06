@@ -1,0 +1,74 @@
+'use client';
+import { NutrientConstraint } from '../../types/constraints';
+import { NumberInput } from '../ui/NumberInput';
+import { Tooltip } from '../ui/Tooltip';
+
+interface NutrientRowProps {
+  constraint: NutrientConstraint;
+  onChange: (updated: NutrientConstraint) => void;
+}
+
+export function NutrientRow({ constraint, onChange }: NutrientRowProps) {
+  const tooltipContent = (
+    <div className="space-y-1">
+      <p className="font-medium">{constraint.label}</p>
+      <p>FDA DV: {constraint.fdaDaily} {constraint.unit}</p>
+      {constraint.efsaDaily !== undefined && (
+        <p>EFSA: {constraint.efsaDaily} {constraint.unit}</p>
+      )}
+    </div>
+  );
+
+  return (
+    <div className={`flex items-center gap-2 py-2 px-1 rounded-lg transition-colors ${
+      constraint.enabled ? '' : 'opacity-40'
+    }`}>
+      {/* Enable toggle */}
+      <button
+        onClick={() => onChange({ ...constraint, enabled: !constraint.enabled })}
+        className={`flex-shrink-0 w-8 h-4 rounded-full transition-colors relative ${
+          constraint.enabled ? 'bg-green-400' : 'bg-gray-200'
+        }`}
+        title={constraint.enabled ? 'Disable constraint' : 'Enable constraint'}
+      >
+        <span className={`absolute top-0.5 w-3 h-3 bg-white rounded-full shadow-sm transition-transform ${
+          constraint.enabled ? 'left-4.5 translate-x-0.5' : 'left-0.5'
+        }`} />
+      </button>
+
+      {/* Label */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1">
+          <span className="text-xs text-gray-700 font-medium truncate">{constraint.label}</span>
+          <Tooltip content={tooltipContent}>
+            <span className="text-gray-300 cursor-help flex-shrink-0">
+              <svg width="12" height="12" viewBox="0 0 15 15" fill="none">
+                <path d="M7.5 1C3.91 1 1 3.91 1 7.5S3.91 14 7.5 14 14 11.09 14 7.5 11.09 1 7.5 1Zm.75 10.5h-1.5v-5h1.5v5Zm0-6.5h-1.5V3.5h1.5V5Z" fill="currentColor"/>
+              </svg>
+            </span>
+          </Tooltip>
+        </div>
+      </div>
+
+      {/* Min / Max inputs */}
+      <div className="flex items-center gap-1 flex-shrink-0">
+        <NumberInput
+          value={constraint.min}
+          onChange={(v) => onChange({ ...constraint, min: v })}
+          placeholder="min"
+          min={0}
+          step={constraint.unit === 'mcg' ? 0.1 : 1}
+        />
+        <span className="text-[10px] text-gray-300">–</span>
+        <NumberInput
+          value={constraint.max}
+          onChange={(v) => onChange({ ...constraint, max: v })}
+          placeholder="max"
+          min={0}
+          step={constraint.unit === 'mcg' ? 0.1 : 1}
+        />
+        <span className="text-[10px] text-gray-400 w-6 text-right">{constraint.unit}</span>
+      </div>
+    </div>
+  );
+}
