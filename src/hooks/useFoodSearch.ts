@@ -5,6 +5,7 @@ import { FoodSearchResult } from '../types/food';
 export function useFoodSearch(query: string, source: 'all' | 'USDA' | 'OFF') {
   const [results, setResults] = useState<FoodSearchResult[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | undefined>(undefined);
   const abortRef = useRef<AbortController | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -12,16 +13,15 @@ export function useFoodSearch(query: string, source: 'all' | 'USDA' | 'OFF') {
     if (query.length < 2) {
       setResults([]);
       setLoading(false);
+      setError(undefined);
       return;
     }
 
-    // Clear previous timer
     if (timerRef.current) clearTimeout(timerRef.current);
-
     setLoading(true);
+    setError(undefined);
 
     timerRef.current = setTimeout(async () => {
-      // Abort previous in-flight request
       if (abortRef.current) abortRef.current.abort();
       const controller = new AbortController();
       abortRef.current = controller;
@@ -31,13 +31,22 @@ export function useFoodSearch(query: string, source: 'all' | 'USDA' | 'OFF') {
         const res = await fetch(`/api/nutrition/search?${params}`, {
           signal: controller.signal,
         });
-        if (!res.ok) throw new Error('Search failed');
+
+        if (res.status === 503) {
+          const body = await res.json().catch(() => ({}));
+          setError(body.error ?? 'Nutrition APIs unavailable. Try again shortly.');
+          setResults([]);
+          return;
+        }
+
+        if (!res.ok) throw new Error(`Search failed (${res.status})`);
         const data: FoodSearchResult[] = await res.json();
         setResults(data);
+        setError(undefined);
       } catch (err) {
-        if ((err as Error).name !== 'AbortError') {
-          setResults([]);
-        }
+        if ((err as Error).name === 'AbortError') return;
+        setResults([]);
+        setError('Search unavailable. Check your connection and try again.');
       } finally {
         setLoading(false);
       }
@@ -48,5 +57,5 @@ export function useFoodSearch(query: string, source: 'all' | 'USDA' | 'OFF') {
     };
   }, [query, source]);
 
-  return { results, loading };
+  return { results, loading, error };
 }

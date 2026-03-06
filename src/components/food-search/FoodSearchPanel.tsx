@@ -17,18 +17,21 @@ export function FoodSearchPanel({ selectedFoods, onAdd, onRemove }: FoodSearchPa
   const [query, setQuery] = useState('');
   const [source, setSource] = useState<'all' | 'USDA' | 'OFF'>('all');
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [addError, setAddError] = useState<string | null>(null);
 
-  const { results, loading: searchLoading } = useFoodSearch(query, source);
+  const { results, loading: searchLoading, error: searchError } = useFoodSearch(query, source);
   const { fetchDetail } = useFoodDetail();
 
   const handleAdd = async (result: FoodSearchResult) => {
     setLoadingId(result.id);
+    setAddError(null);
     try {
       const nutrientProfile = await fetchDetail(result.id, result.source);
       onAdd({ searchResult: result, nutrientProfile });
       setQuery('');
     } catch (err) {
       console.error('Failed to fetch nutrient detail:', err);
+      setAddError('Failed to load nutrient data. Try a different food.');
     } finally {
       setLoadingId(null);
     }
@@ -54,8 +57,13 @@ export function FoodSearchPanel({ selectedFoods, onAdd, onRemove }: FoodSearchPa
               loadingId={loadingId}
               onAdd={handleAdd}
               query={query}
+              loading={searchLoading}
+              error={searchError}
             />
           </div>
+        )}
+        {addError && (
+          <p className="mt-2 text-xs text-red-500 px-1">{addError}</p>
         )}
       </div>
 

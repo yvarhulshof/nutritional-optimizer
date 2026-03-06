@@ -26,24 +26,35 @@ export async function GET(req: NextRequest) {
   }
 
   const results: FoodSearchResult[] = [];
+  let usdaError: string | null = null;
+  let offError: string | null = null;
 
-  try {
-    if (source === 'all' || source === 'USDA') {
+  if (source === 'all' || source === 'USDA') {
+    try {
       const usda = await searchUsda(query);
       results.push(...usda);
+    } catch (err) {
+      usdaError = String(err);
+      console.error('USDA search error:', usdaError);
     }
-  } catch (err) {
-    console.error('USDA search error:', err);
   }
 
-  try {
-    if (source === 'all' || source === 'OFF') {
+  if (source === 'all' || source === 'OFF') {
+    try {
       const off = await searchOff(query);
-      // Prefer USDA results over OFF when deduplicating (USDA comes first)
       results.push(...off);
+    } catch (err) {
+      offError = String(err);
+      console.error('OFF search error:', offError);
     }
-  } catch (err) {
-    console.error('OFF search error:', err);
+  }
+
+  // If both failed, return 503 so the client can show an error
+  if (results.length === 0 && usdaError && offError) {
+    return NextResponse.json(
+      { error: 'Both nutrition APIs unavailable. Try again shortly.' },
+      { status: 503 }
+    );
   }
 
   return NextResponse.json(deduplicateByName(results).slice(0, 10));
