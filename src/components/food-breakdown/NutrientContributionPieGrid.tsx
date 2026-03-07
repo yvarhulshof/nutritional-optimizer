@@ -55,27 +55,19 @@ function arcPath(startAngle: number, endAngle: number) {
 
 interface Props { foods: SelectedFood[] }
 
-function labelFitsSlice(ratio: number, shortName: string, pct: string) {
-  if (ratio < 0.07) return false;
-
+function labelFitsSlice(ratio: number, shortName: string, pct: string, fontSize: number) {
+  if (ratio < 0.05) return false;
   const labelRadius = RADIUS * 0.62;
   const arcLength = ratio * Math.PI * 2 * labelRadius;
-  const approxCharWidth = 4.8;
+  const approxCharWidth = fontSize * 0.6;
   const neededWidth = Math.max(shortName.length, pct.length) * approxCharWidth + 8;
   return arcLength >= neededWidth;
 }
 
 export function NutrientContributionPieGrid({ foods }: Props) {
-  const nutrientsByTotal = NUTRIENTS
-    .map((nutrient) => ({
-      ...nutrient,
-      total: foods.reduce((sum, food) => sum + (food.nutrientProfile[nutrient.key] ?? 0), 0),
-    }))
-    .sort((a, b) => b.total - a.total);
-
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-      {nutrientsByTotal.map(({ key, label, unit, total }) => {
+      {NUTRIENTS.map(({ key, label, unit }) => {
         const totals = foods.map((food) => ({
           id: food.searchResult.id,
           name: food.searchResult.name.split(',')[0],
@@ -83,6 +75,7 @@ export function NutrientContributionPieGrid({ foods }: Props) {
         }))
           .filter((item) => item.value > 0)
           .sort((a, b) => b.value - a.value);
+        const total = totals.reduce((sum, item) => sum + item.value, 0);
 
         if (total <= 0) {
           return (
@@ -94,6 +87,7 @@ export function NutrientContributionPieGrid({ foods }: Props) {
         }
 
         let currentAngle = -Math.PI / 2;
+        let allowMoreInSliceLabels = true;
 
         return (
           <div key={key} className="border border-gray-100 rounded-xl p-3 bg-white">
@@ -114,21 +108,30 @@ export function NutrientContributionPieGrid({ foods }: Props) {
                 const labelPoint = polarToCartesian(CENTER, CENTER, RADIUS * 0.62, midAngle);
                 const shortName = item.name.length > 13 ? `${item.name.slice(0, 12)}…` : item.name;
                 const pct = `${Math.round(ratio * 100)}%`;
-                const showInSliceLabel = labelFitsSlice(ratio, shortName, pct);
+                let labelFontSize: number | null = null;
+                if (allowMoreInSliceLabels) {
+                  if (labelFitsSlice(ratio, shortName, pct, 8)) {
+                    labelFontSize = 8;
+                  } else if (labelFitsSlice(ratio, shortName, pct, 7)) {
+                    labelFontSize = 7;
+                  } else {
+                    allowMoreInSliceLabels = false;
+                  }
+                }
 
                 currentAngle = endAngle;
 
                 return (
                   <g key={item.id}>
                     <path d={path} fill={COLORS[index % COLORS.length]} stroke="#fff" strokeWidth="1" />
-                    {showInSliceLabel ? (
+                    {labelFontSize ? (
                       <text
                         x={labelPoint.x}
                         y={labelPoint.y}
                         textAnchor="middle"
                         dominantBaseline="middle"
                         fill="white"
-                        fontSize="8"
+                        fontSize={labelFontSize}
                         fontWeight="600"
                         paintOrder="stroke"
                         stroke="rgba(17,24,39,0.35)"
