@@ -34,10 +34,6 @@ export function FoodBreakdownPanel({ foods }: Props) {
             <NutrientHeatmap foods={foods} />
           </Section>
 
-          <Section title="Nutrient Contribution Pies — food share of each nutrient total">
-            <NutrientContributionPieGrid foods={foods} />
-          </Section>
-
           <Section title="Cost vs. Nutrient — dot size = calories">
             <CostNutrientScatter foods={foods} />
           </Section>
