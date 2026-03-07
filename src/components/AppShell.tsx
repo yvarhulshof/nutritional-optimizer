@@ -84,6 +84,7 @@ export function AppShell() {
             onReset={handleReset}
             diet={diet}
             onDietChange={setDiet}
+            candidateFoods={filteredFoods}
           />
         </div>
 

@@ -1,6 +1,6 @@
 'use client';
 import { NutrientConstraint, ObjectiveType } from '../../types/constraints';
-import { DietaryTag } from '../../types/food';
+import { DietaryTag, SelectedFood } from '../../types/food';
 import { ObjectiveSelector } from './ObjectiveSelector';
 import { NutrientConstraints } from './NutrientConstraints';
 
@@ -19,6 +19,7 @@ interface ConstraintsPanelProps {
   onReset: () => void;
   diet: DietaryTag[];
   onDietChange: (diet: DietaryTag[]) => void;
+  candidateFoods: SelectedFood[];
 }
 
 export function ConstraintsPanel({
@@ -29,6 +30,7 @@ export function ConstraintsPanel({
   onReset,
   diet,
   onDietChange,
+  candidateFoods,
 }: ConstraintsPanelProps) {
   const toggleDiet = (tag: DietaryTag) => {
     if (diet.includes(tag)) {
@@ -74,6 +76,25 @@ export function ConstraintsPanel({
                 );
               })}
             </div>
+          </div>
+
+          {/* Candidate food list */}
+          <div className="mt-4">
+            <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
+              Candidate Foods
+              <span className="ml-1.5 text-gray-300 font-normal normal-case">({candidateFoods.length})</span>
+            </p>
+            <ul className="max-h-48 overflow-y-auto space-y-0.5 pr-1">
+              {candidateFoods.map((f) => (
+                <li
+                  key={f.searchResult.id}
+                  className="text-xs text-gray-600 px-2 py-1 rounded hover:bg-gray-50 truncate"
+                  title={f.searchResult.name}
+                >
+                  {f.searchResult.name}
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
 
