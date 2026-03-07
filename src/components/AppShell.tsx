@@ -6,10 +6,16 @@ import { ResultsPanel } from './results/ResultsPanel';
 import { SelectedFood } from '../types/food';
 import { NutrientConstraint, ObjectiveType } from '../types/constraints';
 import { DEFAULT_CONSTRAINTS } from '../lib/nutrition/defaults';
+import { COMMON_FOODS } from '../lib/nutrition/commonFoods';
 import { useOptimizer } from '../hooks/useOptimizer';
 
+const ALL_FOODS: SelectedFood[] = COMMON_FOODS.map((sf) => ({
+  searchResult: sf.result,
+  nutrientProfile: sf.profile,
+}));
+
 export function AppShell() {
-  const [selectedFoods, setSelectedFoods] = useState<SelectedFood[]>([]);
+  const [selectedFoods, setSelectedFoods] = useState<SelectedFood[]>(ALL_FOODS);
   const [objective, setObjective] = useState<ObjectiveType>('minimize_cost');
   const [constraints, setConstraints] = useState<NutrientConstraint[]>(
     DEFAULT_CONSTRAINTS.map((c) => ({ ...c }))
