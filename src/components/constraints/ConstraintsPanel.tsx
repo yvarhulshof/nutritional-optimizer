@@ -35,7 +35,7 @@ export function ConstraintsPanel({
       onDietChange(diet.filter((t) => t !== tag));
     } else {
       // Adding vegan also enables vegetarian
-      const next = tag === 'vegan' && !diet.includes('vegetarian')
+      const next: DietaryTag[] = tag === 'vegan' && !diet.includes('vegetarian')
         ? [...diet, tag, 'vegetarian']
         : [...diet, tag];
       onDietChange(next);
