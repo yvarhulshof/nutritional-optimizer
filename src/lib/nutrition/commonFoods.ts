@@ -235,6 +235,17 @@ export const COMMON_FOODS: StaticFood[] = [
   f('174590','Dark chocolate, 70-85%','Sweets',
     [598,7.8,42.6,24.5,45.8,10.9,24.2,20,73,11.9,715,0,0,0,28,228,3.31,0.1], 0.85,
     ['vegetarian','gluten-free']),
+  // ── Supplements ──────────────────────────────────────────────────────────────
+  // Modelled as 1 tablet ≈ 1 g; values are per 100 g (= per 100 tablets).
+  // The LP selects a fraction of a gram per day which equals the daily tablet dose.
+  f('supp-vitd3','Vitamin D3 supplement (1000 IU / tablet)','Supplements',
+    //  kcal  pro  fat  sat  carb fib  sug  Na   Ca   Fe   K    vitC vitD   B12   fol  Mg  Zn omega3
+    [     0,   0,   0,   0,   0,  0,   0,   0,   0,   0,   0,   0, 2500,    0,   0,  0,  0,  0], 5.00,
+    ['vegetarian','vegan','lactose-free','gluten-free']),
+  f('supp-b12','Vitamin B12 supplement (500 mcg / tablet)','Supplements',
+    //  kcal  pro  fat  sat  carb fib  sug  Na   Ca   Fe   K    vitC vitD    B12   fol  Mg  Zn omega3
+    [     0,   0,   0,   0,   0,  0,   0,   0,   0,   0,   0,   0,    0, 50000,   0,  0,  0,  0], 5.00,
+    ['vegetarian','vegan','lactose-free','gluten-free']),
 ];
 
 const nameIndex = COMMON_FOODS.map((f) => ({

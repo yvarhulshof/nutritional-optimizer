@@ -1,6 +1,7 @@
 'use client';
 
-import { NutrientKey, SelectedFood } from '../../types/food';
+import { NutrientKey } from '../../types/food';
+import { FoodQuantity } from '../../types/solver';
 
 const NUTRIENTS: { key: NutrientKey; label: string; unit: string }[] = [
   { key: 'energyKcal', label: 'Calories', unit: 'kcal' },
@@ -53,7 +54,7 @@ function arcPath(startAngle: number, endAngle: number) {
   ].join(' ');
 }
 
-interface Props { foods: SelectedFood[] }
+interface Props { quantities: FoodQuantity[] }
 
 function labelFitsSlice(ratio: number, shortName: string, pct: string, fontSize: number) {
   if (ratio < 0.05) return false;
@@ -64,14 +65,15 @@ function labelFitsSlice(ratio: number, shortName: string, pct: string, fontSize:
   return arcLength >= neededWidth;
 }
 
-export function NutrientContributionPieGrid({ foods }: Props) {
+export function NutrientContributionPieGrid({ quantities }: Props) {
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {NUTRIENTS.map(({ key, label, unit }) => {
-        const totals = foods.map((food) => ({
-          id: food.searchResult.id,
-          name: food.searchResult.name.split(',')[0],
-          value: food.nutrientProfile[key] ?? 0,
+        // Scale each food's nutrient contribution by its actual grams in the solution
+        const totals = quantities.map((q) => ({
+          id: q.food.searchResult.id,
+          name: q.food.searchResult.name.split(',')[0],
+          value: (q.food.nutrientProfile[key] ?? 0) * (q.grams / 100),
         }))
           .filter((item) => item.value > 0)
           .sort((a, b) => b.value - a.value);

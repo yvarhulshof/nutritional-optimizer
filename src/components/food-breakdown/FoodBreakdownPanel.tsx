@@ -1,12 +1,12 @@
 'use client';
-import { SelectedFood } from '../../types/food';
+import { FoodQuantity } from '../../types/solver';
 import { NutrientHeatmap } from './NutrientHeatmap';
 import { CostNutrientScatter } from './CostNutrientScatter';
 import { FoodCards } from './FoodCards';
 import { NutrientBarChart } from './NutrientBarChart';
 import { NutrientContributionPieGrid } from './NutrientContributionPieGrid';
 
-interface Props { foods: SelectedFood[] }
+interface Props { quantities: FoodQuantity[] }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -17,35 +17,37 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-export function FoodBreakdownPanel({ foods }: Props) {
+export function FoodBreakdownPanel({ quantities }: Props) {
+  const foods = quantities.map((q) => q.food);
+
   return (
     <div className="p-5 space-y-10">
       <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">
         Food Breakdown
       </h2>
 
-      {foods.length === 0 ? (
+      {quantities.length === 0 ? (
         <p className="text-sm text-gray-500">
           Run the optimizer to see a breakdown of foods included in the generated solution.
         </p>
       ) : (
         <>
-          <Section title="Nutrient Heatmap — intensity = value relative to max across all foods">
+          <Section title="Nutrient Heatmap — intensity = value relative to max across all foods (per 100g)">
             <NutrientHeatmap foods={foods} />
           </Section>
 
-          <Section title="Nutrient Contribution Pies — food share of each nutrient total">
-            <NutrientContributionPieGrid foods={foods} />
+          <Section title="Nutrient Contribution Pies — each food's actual share of the day's total">
+            <NutrientContributionPieGrid quantities={quantities} />
           </Section>
 
-          <Section title="Cost vs. Nutrient — dot size = calories">
+          <Section title="Cost vs. Nutrient — dot size = calories (per 100g)">
             <CostNutrientScatter foods={foods} />
           </Section>
 
-          <Section title="Food Cards — macro composition per food">
+          <Section title="Food Cards — macro composition per food (per 100g)">
             <FoodCards foods={foods} />
           </Section>
-          <Section title="Ranked Bar Chart — sort by any metric">
+          <Section title="Ranked Bar Chart — sort by any metric (per 100g)">
             <NutrientBarChart foods={foods} />
           </Section>
         </>

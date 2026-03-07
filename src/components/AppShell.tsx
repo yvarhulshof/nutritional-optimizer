@@ -3,6 +3,7 @@ import { useState, useCallback } from 'react';
 import { ConstraintsPanel } from './constraints/ConstraintsPanel';
 import { ResultsPanel } from './results/ResultsPanel';
 import { SelectedFood, DietaryTag } from '../types/food';
+import { FoodQuantity } from '../types/solver';
 import { NutrientConstraint, ObjectiveType } from '../types/constraints';
 import { DEFAULT_CONSTRAINTS } from '../lib/nutrition/defaults';
 import { COMMON_FOODS } from '../lib/nutrition/commonFoods';
@@ -30,8 +31,8 @@ export function AppShell() {
 
   const { result, status, solve } = useOptimizer();
 
-  const foodsInSolution =
-    result?.status === 'optimal' ? result.quantities.map((quantity) => quantity.food) : [];
+  const quantitiesInSolution: FoodQuantity[] =
+    result?.status === 'optimal' ? result.quantities : [];
 
   const handleReset = useCallback(() => {
     setConstraints(DEFAULT_CONSTRAINTS.map((c) => ({ ...c })));
@@ -102,7 +103,7 @@ export function AppShell() {
 
         {/* Food breakdown panel — full width */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <FoodBreakdownPanel foods={foodsInSolution} />
+          <FoodBreakdownPanel quantities={quantitiesInSolution} />
         </div>
       </div>
 
