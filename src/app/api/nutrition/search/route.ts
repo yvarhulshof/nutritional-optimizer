@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { searchUsda } from '../../../../lib/api/usda';
 import { searchOff } from '../../../../lib/api/off';
-import { FoodSearchResult } from '../../../../types/food';
+import { FoodSearchResult, DietaryTag } from '../../../../types/food';
 
 function normalizeName(name: string): string {
   return name.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim();
@@ -17,9 +17,18 @@ function deduplicateByName(results: FoodSearchResult[]): FoodSearchResult[] {
   });
 }
 
+function applyDietaryFilter(results: FoodSearchResult[], diet: DietaryTag[]): FoodSearchResult[] {
+  if (diet.length === 0) return results;
+  return results.filter((r) =>
+    diet.every((tag) => r.dietaryTags?.includes(tag))
+  );
+}
+
 export async function GET(req: NextRequest) {
   const query = req.nextUrl.searchParams.get('query');
   const source = req.nextUrl.searchParams.get('source') ?? 'all';
+  const dietParam = req.nextUrl.searchParams.get('diet') ?? '';
+  const diet = dietParam ? (dietParam.split(',') as DietaryTag[]) : [];
 
   if (!query || query.length < 2) {
     return NextResponse.json([]);
@@ -57,5 +66,6 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  return NextResponse.json(deduplicateByName(results).slice(0, 10));
+  const filtered = applyDietaryFilter(deduplicateByName(results), diet);
+  return NextResponse.json(filtered.slice(0, 10));
 }

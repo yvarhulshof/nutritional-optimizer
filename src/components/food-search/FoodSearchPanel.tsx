@@ -3,9 +3,16 @@ import { useState } from 'react';
 import { FoodSearchInput } from './FoodSearchInput';
 import { FoodSearchResults } from './FoodSearchResults';
 import { SelectedFoodList } from './SelectedFoodList';
-import { FoodSearchResult, SelectedFood } from '../../types/food';
+import { FoodSearchResult, SelectedFood, DietaryTag } from '../../types/food';
 import { useFoodSearch } from '../../hooks/useFoodSearch';
 import { useFoodDetail } from '../../hooks/useFoodDetail';
+
+const DIETARY_OPTIONS: { tag: DietaryTag; label: string }[] = [
+  { tag: 'vegetarian',  label: 'Vegetarian' },
+  { tag: 'vegan',       label: 'Vegan' },
+  { tag: 'lactose-free', label: 'Lactose-free' },
+  { tag: 'gluten-free', label: 'Gluten-free' },
+];
 
 interface FoodSearchPanelProps {
   selectedFoods: SelectedFood[];
@@ -16,10 +23,14 @@ interface FoodSearchPanelProps {
 export function FoodSearchPanel({ selectedFoods, onAdd, onRemove }: FoodSearchPanelProps) {
   const [query, setQuery] = useState('');
   const [source, setSource] = useState<'all' | 'USDA' | 'OFF'>('all');
+  const [diet, setDiet] = useState<DietaryTag[]>([]);
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [addError, setAddError] = useState<string | null>(null);
 
-  const { results, loading: searchLoading, error: searchError } = useFoodSearch(query, source);
+  const toggleDiet = (tag: DietaryTag) =>
+    setDiet((prev) => prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]);
+
+  const { results, loading: searchLoading, error: searchError } = useFoodSearch(query, source, diet);
   const { fetchDetail } = useFoodDetail();
 
   const handleAdd = async (result: FoodSearchResult) => {
@@ -43,6 +54,24 @@ export function FoodSearchPanel({ selectedFoods, onAdd, onRemove }: FoodSearchPa
         <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
           1 · Foods
         </h2>
+        <div className="flex flex-wrap gap-1.5 mb-3">
+          {DIETARY_OPTIONS.map(({ tag, label }) => {
+            const active = diet.includes(tag);
+            return (
+              <button
+                key={tag}
+                onClick={() => toggleDiet(tag)}
+                className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${
+                  active
+                    ? 'bg-green-600 border-green-600 text-white'
+                    : 'bg-white border-gray-200 text-gray-500 hover:border-green-400 hover:text-green-600'
+                }`}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
         <FoodSearchInput
           value={query}
           onChange={setQuery}

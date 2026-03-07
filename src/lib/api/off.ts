@@ -1,5 +1,6 @@
 import { FoodSearchResult, NutrientProfile } from '../../types/food';
 import { normalizeOffFood } from '../nutrition/normalize';
+import { inferTagsFromOffLabels } from '../nutrition/dietary';
 
 const BASE = 'https://world.openfoodfacts.org';
 const UA = 'NutriOpt/1.0 (nutritional optimizer; github.com/nutriopt)';
@@ -9,7 +10,7 @@ export async function searchOff(query: string): Promise<FoodSearchResult[]> {
   url.searchParams.set('search_terms', query);
   url.searchParams.set('json', '1');
   url.searchParams.set('page_size', '6');
-  url.searchParams.set('fields', 'code,product_name,brands,categories,completeness');
+  url.searchParams.set('fields', 'code,product_name,brands,categories,labels_tags,completeness');
   url.searchParams.set('sort_by', 'completeness');
 
   const res = await fetch(url.toString(), {
@@ -28,6 +29,7 @@ export async function searchOff(query: string): Promise<FoodSearchResult[]> {
         name: String(p.product_name).trim(),
         brand: p.brands ? String(p.brands).split(',')[0].trim() : undefined,
         category: p.categories ? String(p.categories).split(',')[0].trim() : undefined,
+        dietaryTags: inferTagsFromOffLabels(p.labels_tags as string[] | undefined),
       })
     );
 }

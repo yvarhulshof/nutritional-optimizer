@@ -1,5 +1,6 @@
 import { FoodSearchResult, NutrientProfile } from '../../types/food';
 import { normalizeUsdaFood } from '../nutrition/normalize';
+import { inferTagsFromUsdaCategory } from '../nutrition/dietary';
 
 const BASE = 'https://api.nal.usda.gov/fdc/v1';
 const API_KEY = process.env.USDA_API_KEY ?? 'DEMO_KEY';
@@ -19,13 +20,17 @@ export async function searchUsda(query: string): Promise<FoodSearchResult[]> {
   const data = await res.json();
 
   return (data.foods ?? []).map(
-    (f: Record<string, unknown>): FoodSearchResult => ({
-      id: String(f.fdcId),
-      source: 'USDA',
-      name: String(f.description),
-      brand: f.brandOwner ? String(f.brandOwner) : undefined,
-      category: f.foodCategory ? String(f.foodCategory) : undefined,
-    })
+    (f: Record<string, unknown>): FoodSearchResult => {
+      const category = f.foodCategory ? String(f.foodCategory) : undefined;
+      return {
+        id: String(f.fdcId),
+        source: 'USDA',
+        name: String(f.description),
+        brand: f.brandOwner ? String(f.brandOwner) : undefined,
+        category,
+        dietaryTags: inferTagsFromUsdaCategory(category),
+      };
+    }
   );
 }
 

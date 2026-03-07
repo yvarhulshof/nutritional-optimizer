@@ -1,11 +1,14 @@
 export type FoodSource = 'USDA' | 'OFF';
 
+export type DietaryTag = 'vegetarian' | 'vegan' | 'lactose-free' | 'gluten-free';
+
 export interface FoodSearchResult {
   id: string;
   source: FoodSource;
   name: string;
   brand?: string;
   category?: string;
+  dietaryTags?: DietaryTag[];
 }
 
 export interface NutrientProfile {
