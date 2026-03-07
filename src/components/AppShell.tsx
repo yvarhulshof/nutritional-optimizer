@@ -2,7 +2,7 @@
 import { useState, useCallback } from 'react';
 import { ConstraintsPanel } from './constraints/ConstraintsPanel';
 import { ResultsPanel } from './results/ResultsPanel';
-import { SelectedFood } from '../types/food';
+import { SelectedFood, DietaryTag } from '../types/food';
 import { NutrientConstraint, ObjectiveType } from '../types/constraints';
 import { DEFAULT_CONSTRAINTS } from '../lib/nutrition/defaults';
 import { COMMON_FOODS } from '../lib/nutrition/commonFoods';
@@ -16,11 +16,17 @@ const ALL_FOODS: SelectedFood[] = COMMON_FOODS.map((sf) => ({
 }));
 
 export function AppShell() {
-  const [selectedFoods] = useState<SelectedFood[]>(ALL_FOODS);
+  const [diet, setDiet] = useState<DietaryTag[]>([]);
   const [objective, setObjective] = useState<ObjectiveType>('minimize_cost');
   const [constraints, setConstraints] = useState<NutrientConstraint[]>(
     DEFAULT_CONSTRAINTS.map((c) => ({ ...c }))
   );
+
+  const filteredFoods = diet.length === 0
+    ? ALL_FOODS
+    : ALL_FOODS.filter((f) =>
+        diet.every((tag) => f.searchResult.dietaryTags?.includes(tag))
+      );
 
   const { result, status, solve } = useOptimizer();
 
@@ -32,8 +38,8 @@ export function AppShell() {
   }, []);
 
   const handleSolve = useCallback(() => {
-    solve(selectedFoods, constraints, objective);
-  }, [selectedFoods, constraints, objective, solve]);
+    solve(filteredFoods, constraints, objective);
+  }, [filteredFoods, constraints, objective, solve]);
 
   const handleRelaxConstraints = useCallback(() => {
     setConstraints((prev) =>
@@ -76,6 +82,8 @@ export function AppShell() {
             constraints={constraints}
             onConstraintsChange={setConstraints}
             onReset={handleReset}
+            diet={diet}
+            onDietChange={setDiet}
           />
         </div>
 
@@ -85,7 +93,7 @@ export function AppShell() {
             result={result}
             solverStatus={status}
             constraints={constraints}
-            selectedFoods={selectedFoods}
+            selectedFoods={filteredFoods}
             onSolve={handleSolve}
             onRelaxConstraints={handleRelaxConstraints}
           />
