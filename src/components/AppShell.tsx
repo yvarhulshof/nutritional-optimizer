@@ -7,6 +7,7 @@ import { NutrientConstraint, ObjectiveType } from '../types/constraints';
 import { DEFAULT_CONSTRAINTS } from '../lib/nutrition/defaults';
 import { COMMON_FOODS } from '../lib/nutrition/commonFoods';
 import { useOptimizer } from '../hooks/useOptimizer';
+import { FoodBreakdownPanel } from './food-breakdown/FoodBreakdownPanel';
 
 const ALL_FOODS: SelectedFood[] = COMMON_FOODS.map((sf) => ({
   searchResult: sf.result,
@@ -85,6 +86,11 @@ export function AppShell() {
             onSolve={handleSolve}
             onRelaxConstraints={handleRelaxConstraints}
           />
+        </div>
+
+        {/* Food breakdown panel — full width */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <FoodBreakdownPanel foods={selectedFoods} />
         </div>
       </div>
 
