@@ -34,6 +34,10 @@ export function FoodBreakdownPanel({ foods }: Props) {
             <NutrientHeatmap foods={foods} />
           </Section>
 
+          <Section title="Nutrient Contribution Pies — food share of each nutrient total">
+            <NutrientContributionPieGrid foods={foods} />
+          </Section>
+
           <Section title="Cost vs. Nutrient — dot size = calories">
             <CostNutrientScatter foods={foods} />
           </Section>
@@ -41,7 +45,6 @@ export function FoodBreakdownPanel({ foods }: Props) {
           <Section title="Food Cards — macro composition per food">
             <FoodCards foods={foods} />
           </Section>
-
           <Section title="Ranked Bar Chart — sort by any metric">
             <NutrientBarChart foods={foods} />
           </Section>
