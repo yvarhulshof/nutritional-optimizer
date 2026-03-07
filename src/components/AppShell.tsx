@@ -1,6 +1,5 @@
 'use client';
 import { useState, useCallback } from 'react';
-import { FoodSearchPanel } from './food-search/FoodSearchPanel';
 import { ConstraintsPanel } from './constraints/ConstraintsPanel';
 import { ResultsPanel } from './results/ResultsPanel';
 import { SelectedFood } from '../types/food';
@@ -15,21 +14,13 @@ const ALL_FOODS: SelectedFood[] = COMMON_FOODS.map((sf) => ({
 }));
 
 export function AppShell() {
-  const [selectedFoods, setSelectedFoods] = useState<SelectedFood[]>(ALL_FOODS);
+  const [selectedFoods] = useState<SelectedFood[]>(ALL_FOODS);
   const [objective, setObjective] = useState<ObjectiveType>('minimize_cost');
   const [constraints, setConstraints] = useState<NutrientConstraint[]>(
     DEFAULT_CONSTRAINTS.map((c) => ({ ...c }))
   );
 
   const { result, status, solve } = useOptimizer();
-
-  const handleAddFood = useCallback((food: SelectedFood) => {
-    setSelectedFoods((prev) => [...prev, food]);
-  }, []);
-
-  const handleRemoveFood = useCallback((index: number) => {
-    setSelectedFoods((prev) => prev.filter((_, i) => i !== index));
-  }, []);
 
   const handleReset = useCallback(() => {
     setConstraints(DEFAULT_CONSTRAINTS.map((c) => ({ ...c })));
@@ -70,19 +61,10 @@ export function AppShell() {
         </p>
       </div>
 
-      {/* Three-panel layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr_360px] gap-4 min-h-[700px]">
-        {/* Panel 1: Food Search */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
-          <FoodSearchPanel
-            selectedFoods={selectedFoods}
-            onAdd={handleAddFood}
-            onRemove={handleRemoveFood}
-          />
-        </div>
-
-        {/* Panel 2: Constraints */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+      {/* Stacked layout */}
+      <div className="flex flex-col gap-4">
+        {/* Configure panel — full width */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           <ConstraintsPanel
             objective={objective}
             onObjectiveChange={setObjective}
@@ -92,8 +74,8 @@ export function AppShell() {
           />
         </div>
 
-        {/* Panel 3: Results */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
+        {/* Results panel — full width */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           <ResultsPanel
             result={result}
             solverStatus={status}
