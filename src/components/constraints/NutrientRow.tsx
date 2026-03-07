@@ -1,7 +1,6 @@
 'use client';
 import { NutrientConstraint } from '../../types/constraints';
 import { NumberInput } from '../ui/NumberInput';
-import { Tooltip } from '../ui/Tooltip';
 
 interface NutrientRowProps {
   constraint: NutrientConstraint;
@@ -9,16 +8,6 @@ interface NutrientRowProps {
 }
 
 export function NutrientRow({ constraint, onChange }: NutrientRowProps) {
-  const tooltipContent = (
-    <div className="space-y-1">
-      <p className="font-medium">{constraint.label}</p>
-      <p>FDA DV: {constraint.fdaDaily} {constraint.unit}</p>
-      {constraint.efsaDaily !== undefined && (
-        <p>EFSA: {constraint.efsaDaily} {constraint.unit}</p>
-      )}
-    </div>
-  );
-
   return (
     <div className={`flex items-center gap-2 py-2 px-1 rounded-lg transition-colors ${
       constraint.enabled ? '' : 'opacity-40'
@@ -38,16 +27,7 @@ export function NutrientRow({ constraint, onChange }: NutrientRowProps) {
 
       {/* Label */}
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-1">
-          <span className="text-xs text-gray-700 font-medium truncate">{constraint.label}</span>
-          <Tooltip content={tooltipContent}>
-            <span className="text-gray-300 cursor-help flex-shrink-0">
-              <svg width="12" height="12" viewBox="0 0 15 15" fill="none">
-                <path d="M7.5 1C3.91 1 1 3.91 1 7.5S3.91 14 7.5 14 14 11.09 14 7.5 11.09 1 7.5 1Zm.75 10.5h-1.5v-5h1.5v5Zm0-6.5h-1.5V3.5h1.5V5Z" fill="currentColor"/>
-              </svg>
-            </span>
-          </Tooltip>
-        </div>
+        <span className="text-xs text-gray-700 font-medium truncate">{constraint.label}</span>
       </div>
 
       {/* Min / Max inputs */}

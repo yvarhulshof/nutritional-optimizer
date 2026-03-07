@@ -24,9 +24,10 @@ function ProgressBar({
   const reference = max ?? (min ? min * 2 : 100);
   const pct = Math.min((value / reference) * 100, 100);
 
-  // Determine color
-  const belowMin = min !== null && value < min;
-  const aboveMax = max !== null && value > max;
+  // Allow 0.5% tolerance so LP solutions sitting right on a bound show as green
+  const TOL = 0.005;
+  const belowMin = min !== null && value < min * (1 - TOL);
+  const aboveMax = max !== null && value > max * (1 + TOL);
   const barColor = belowMin ? 'bg-red-400' : aboveMax ? 'bg-amber-400' : 'bg-green-400';
 
   const minMarkerPct = min !== null ? Math.min((min / reference) * 100, 100) : null;

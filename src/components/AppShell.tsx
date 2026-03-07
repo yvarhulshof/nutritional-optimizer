@@ -11,6 +11,7 @@ import { useOptimizer } from '../hooks/useOptimizer';
 const ALL_FOODS: SelectedFood[] = COMMON_FOODS.map((sf) => ({
   searchResult: sf.result,
   nutrientProfile: sf.profile,
+  costPer100g: sf.costPer100g,
 }));
 
 export function AppShell() {
