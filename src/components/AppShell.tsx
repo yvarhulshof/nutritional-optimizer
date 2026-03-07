@@ -24,6 +24,9 @@ export function AppShell() {
 
   const { result, status, solve } = useOptimizer();
 
+  const foodsInSolution =
+    result?.status === 'optimal' ? result.quantities.map((quantity) => quantity.food) : [];
+
   const handleReset = useCallback(() => {
     setConstraints(DEFAULT_CONSTRAINTS.map((c) => ({ ...c })));
   }, []);
@@ -90,7 +93,7 @@ export function AppShell() {
 
         {/* Food breakdown panel — full width */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <FoodBreakdownPanel foods={selectedFoods} />
+          <FoodBreakdownPanel foods={foodsInSolution} />
         </div>
       </div>
 
