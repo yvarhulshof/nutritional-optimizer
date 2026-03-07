@@ -24,9 +24,9 @@ const NUTRIENTS: { key: NutrientKey; label: string; unit: string }[] = [
 ];
 
 const COLORS = [
-  '#22c55e', '#10b981', '#06b6d4', '#3b82f6', '#6366f1',
-  '#8b5cf6', '#a855f7', '#d946ef', '#ec4899', '#f43f5e',
-  '#f97316', '#f59e0b', '#84cc16', '#14b8a6', '#0ea5e9',
+  '#0072B2', '#E69F00', '#009E73', '#D55E00', '#56B4E9',
+  '#CC79A7', '#F0E442', '#332288', '#117733', '#88CCEE',
+  '#44AA99', '#999933', '#DDCC77', '#CC6677', '#AA4499',
 ];
 
 const SIZE = 180;
@@ -55,17 +55,34 @@ function arcPath(startAngle: number, endAngle: number) {
 
 interface Props { foods: SelectedFood[] }
 
+function labelFitsSlice(ratio: number, shortName: string, pct: string) {
+  if (ratio < 0.07) return false;
+
+  const labelRadius = RADIUS * 0.62;
+  const arcLength = ratio * Math.PI * 2 * labelRadius;
+  const approxCharWidth = 4.8;
+  const neededWidth = Math.max(shortName.length, pct.length) * approxCharWidth + 8;
+  return arcLength >= neededWidth;
+}
+
 export function NutrientContributionPieGrid({ foods }: Props) {
+  const nutrientsByTotal = NUTRIENTS
+    .map((nutrient) => ({
+      ...nutrient,
+      total: foods.reduce((sum, food) => sum + (food.nutrientProfile[nutrient.key] ?? 0), 0),
+    }))
+    .sort((a, b) => b.total - a.total);
+
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-      {NUTRIENTS.map(({ key, label, unit }) => {
+      {nutrientsByTotal.map(({ key, label, unit, total }) => {
         const totals = foods.map((food) => ({
           id: food.searchResult.id,
           name: food.searchResult.name.split(',')[0],
           value: food.nutrientProfile[key] ?? 0,
-        }));
-
-        const total = totals.reduce((sum, item) => sum + item.value, 0);
+        }))
+          .filter((item) => item.value > 0)
+          .sort((a, b) => b.value - a.value);
 
         if (total <= 0) {
           return (
@@ -88,23 +105,23 @@ export function NutrientContributionPieGrid({ foods }: Props) {
             </div>
 
             <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="w-full h-auto">
-              {totals
-                .filter((item) => item.value > 0)
-                .map((item, index) => {
-                  const ratio = item.value / total;
-                  const endAngle = currentAngle + ratio * Math.PI * 2;
-                  const midAngle = (currentAngle + endAngle) / 2;
-                  const path = arcPath(currentAngle, endAngle);
+              {totals.map((item, index) => {
+                const ratio = item.value / total;
+                const endAngle = currentAngle + ratio * Math.PI * 2;
+                const midAngle = (currentAngle + endAngle) / 2;
+                const path = arcPath(currentAngle, endAngle);
 
-                  const labelPoint = polarToCartesian(CENTER, CENTER, RADIUS * 0.62, midAngle);
-                  const shortName = item.name.length > 13 ? `${item.name.slice(0, 12)}…` : item.name;
-                  const pct = `${Math.round(ratio * 100)}%`;
+                const labelPoint = polarToCartesian(CENTER, CENTER, RADIUS * 0.62, midAngle);
+                const shortName = item.name.length > 13 ? `${item.name.slice(0, 12)}…` : item.name;
+                const pct = `${Math.round(ratio * 100)}%`;
+                const showInSliceLabel = labelFitsSlice(ratio, shortName, pct);
 
-                  currentAngle = endAngle;
+                currentAngle = endAngle;
 
-                  return (
-                    <g key={item.id}>
-                      <path d={path} fill={COLORS[index % COLORS.length]} stroke="#fff" strokeWidth="1" />
+                return (
+                  <g key={item.id}>
+                    <path d={path} fill={COLORS[index % COLORS.length]} stroke="#fff" strokeWidth="1" />
+                    {showInSliceLabel ? (
                       <text
                         x={labelPoint.x}
                         y={labelPoint.y}
@@ -120,10 +137,29 @@ export function NutrientContributionPieGrid({ foods }: Props) {
                         <tspan x={labelPoint.x} dy="-0.2em">{shortName}</tspan>
                         <tspan x={labelPoint.x} dy="1.15em">{pct}</tspan>
                       </text>
-                    </g>
-                  );
-                })}
+                    ) : null}
+                  </g>
+                );
+              })}
             </svg>
+
+            <div className="mt-2 grid gap-1">
+              {totals.map((item, index) => {
+                const ratio = item.value / total;
+                return (
+                  <div key={`${item.id}-legend`} className="flex items-center justify-between text-[10px] text-gray-600">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span
+                        className="inline-block w-2.5 h-2.5 rounded-sm shrink-0"
+                        style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                      />
+                      <span className="truncate">{item.name}</span>
+                    </div>
+                    <span className="text-gray-500">{Math.round(ratio * 100)}%</span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         );
       })}
