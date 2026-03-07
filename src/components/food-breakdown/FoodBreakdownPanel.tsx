@@ -4,6 +4,7 @@ import { NutrientHeatmap } from './NutrientHeatmap';
 import { CostNutrientScatter } from './CostNutrientScatter';
 import { FoodCards } from './FoodCards';
 import { NutrientBarChart } from './NutrientBarChart';
+import { NutrientContributionPieGrid } from './NutrientContributionPieGrid';
 
 interface Props { foods: SelectedFood[] }
 
