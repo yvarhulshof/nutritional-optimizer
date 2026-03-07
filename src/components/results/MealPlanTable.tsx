@@ -31,7 +31,7 @@ export function MealPlanTable({ quantities, totalCost }: MealPlanTableProps) {
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-50">
-          {quantities.map((q, i) => (
+          {[...quantities].sort((a, b) => b.calories - a.calories).map((q, i) => (
             <tr key={i} className="hover:bg-gray-50">
               <td className="py-2 px-1 text-gray-700 max-w-[140px] truncate">
                 {q.food.searchResult.name}
