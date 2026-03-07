@@ -4,6 +4,7 @@ import { NutrientHeatmap } from './NutrientHeatmap';
 import { CostNutrientScatter } from './CostNutrientScatter';
 import { FoodCards } from './FoodCards';
 import { NutrientBarChart } from './NutrientBarChart';
+import { NutrientContributionPieGrid } from './NutrientContributionPieGrid';
 
 interface Props { foods: SelectedFood[] }
 
@@ -23,21 +24,33 @@ export function FoodBreakdownPanel({ foods }: Props) {
         Food Breakdown
       </h2>
 
-      <Section title="Nutrient Heatmap — intensity = value relative to max across all foods">
-        <NutrientHeatmap foods={foods} />
-      </Section>
+      {foods.length === 0 ? (
+        <p className="text-sm text-gray-500">
+          Run the optimizer to see a breakdown of foods included in the generated solution.
+        </p>
+      ) : (
+        <>
+          <Section title="Nutrient Heatmap — intensity = value relative to max across all foods">
+            <NutrientHeatmap foods={foods} />
+          </Section>
 
-      <Section title="Cost vs. Nutrient — dot size = calories">
-        <CostNutrientScatter foods={foods} />
-      </Section>
+          <Section title="Nutrient Contribution Pies — food share of each nutrient total">
+            <NutrientContributionPieGrid foods={foods} />
+          </Section>
 
-      <Section title="Food Cards — macro composition per food">
-        <FoodCards foods={foods} />
-      </Section>
+          <Section title="Cost vs. Nutrient — dot size = calories">
+            <CostNutrientScatter foods={foods} />
+          </Section>
 
-      <Section title="Ranked Bar Chart — sort by any metric">
-        <NutrientBarChart foods={foods} />
-      </Section>
+          <Section title="Food Cards — macro composition per food">
+            <FoodCards foods={foods} />
+          </Section>
+
+          <Section title="Ranked Bar Chart — sort by any metric">
+            <NutrientBarChart foods={foods} />
+          </Section>
+        </>
+      )}
     </div>
   );
 }
