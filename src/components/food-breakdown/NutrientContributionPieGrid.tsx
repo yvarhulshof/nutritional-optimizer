@@ -56,6 +56,15 @@ function arcPath(startAngle: number, endAngle: number) {
 
 interface Props { quantities: FoodQuantity[] }
 
+/** Stable color per food ID — same food always gets the same color across all pies. */
+function buildColorMap(quantities: FoodQuantity[]): Map<string, string> {
+  const map = new Map<string, string>();
+  quantities.forEach((q, i) => {
+    map.set(q.food.searchResult.id, COLORS[i % COLORS.length]);
+  });
+  return map;
+}
+
 function labelFitsSlice(ratio: number, shortName: string, pct: string, fontSize: number) {
   if (ratio < 0.05) return false;
   const labelRadius = RADIUS * 0.62;
@@ -66,6 +75,8 @@ function labelFitsSlice(ratio: number, shortName: string, pct: string, fontSize:
 }
 
 export function NutrientContributionPieGrid({ quantities }: Props) {
+  const colorMap = buildColorMap(quantities);
+
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {NUTRIENTS.map(({ key, label, unit }) => {
@@ -101,7 +112,7 @@ export function NutrientContributionPieGrid({ quantities }: Props) {
             </div>
 
             <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="w-full h-auto">
-              {totals.map((item, index) => {
+              {totals.map((item) => {
                 const ratio = item.value / total;
                 const endAngle = currentAngle + ratio * Math.PI * 2;
                 const midAngle = (currentAngle + endAngle) / 2;
@@ -125,7 +136,7 @@ export function NutrientContributionPieGrid({ quantities }: Props) {
 
                 return (
                   <g key={item.id}>
-                    <path d={path} fill={COLORS[index % COLORS.length]} stroke="#fff" strokeWidth="1" />
+                    <path d={path} fill={colorMap.get(item.id)!} stroke="#fff" strokeWidth="1" />
                     {labelFontSize ? (
                       <text
                         x={labelPoint.x}
@@ -149,14 +160,14 @@ export function NutrientContributionPieGrid({ quantities }: Props) {
             </svg>
 
             <div className="mt-2 grid gap-1">
-              {totals.map((item, index) => {
+              {totals.map((item) => {
                 const ratio = item.value / total;
                 return (
                   <div key={`${item.id}-legend`} className="flex items-center justify-between text-[10px] text-gray-600">
                     <div className="flex items-center gap-2 min-w-0">
                       <span
                         className="inline-block w-2.5 h-2.5 rounded-sm shrink-0"
-                        style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                        style={{ backgroundColor: colorMap.get(item.id) }}
                       />
                       <span className="truncate">{item.name}</span>
                     </div>

@@ -236,15 +236,18 @@ export const COMMON_FOODS: StaticFood[] = [
     [598,7.8,42.6,24.5,45.8,10.9,24.2,20,73,11.9,715,0,0,0,28,228,3.31,0.1], 0.85,
     ['vegetarian','gluten-free']),
   // ── Supplements ──────────────────────────────────────────────────────────────
-  // Modelled as 1 tablet ≈ 1 g; values are per 100 g (= per 100 tablets).
-  // The LP selects a fraction of a gram per day which equals the daily tablet dose.
+  // Each supplement is modelled per 100 g of powder/tablet material.
+  // Potency is tuned so the optimizer selects ≥ 1 g/day (above the 0.5 g noise
+  // threshold in interpret.ts), while reflecting a realistic daily dose.
   f('supp-vitd3','Vitamin D3 supplement (1000 IU / tablet)','Supplements',
-    //  kcal  pro  fat  sat  carb fib  sug  Na   Ca   Fe   K    vitC vitD   B12   fol  Mg  Zn omega3
-    [     0,   0,   0,   0,   0,  0,   0,   0,   0,   0,   0,   0, 2500,    0,   0,  0,  0,  0], 5.00,
+    //  kcal  pro  fat  sat  carb fib  sug  Na   Ca   Fe   K    vitC vitD  B12  fol  Mg  Zn omega3
+    [     0,   0,   0,   0,   0,  0,   0,   0,   0,   0,   0,   0, 2500,   0,   0,  0,  0,  0], 5.00,
     ['vegetarian','vegan','lactose-free','gluten-free']),
-  f('supp-b12','Vitamin B12 supplement (500 mcg / tablet)','Supplements',
-    //  kcal  pro  fat  sat  carb fib  sug  Na   Ca   Fe   K    vitC vitD    B12   fol  Mg  Zn omega3
-    [     0,   0,   0,   0,   0,  0,   0,   0,   0,   0,   0,   0,    0, 50000,   0,  0,  0,  0], 5.00,
+  // 250 mcg/100 g → LP selects ~1 g/day to meet the 2.4 mcg min (≈ one low-dose
+  // daily tablet of 2.5 mcg, common in fortified-food-equivalent form).
+  f('supp-b12','Vitamin B12 supplement (2.5 mcg / tablet)','Supplements',
+    //  kcal  pro  fat  sat  carb fib  sug  Na   Ca   Fe   K    vitC vitD  B12  fol  Mg  Zn omega3
+    [     0,   0,   0,   0,   0,  0,   0,   0,   0,   0,   0,   0,    0, 250,   0,  0,  0,  0], 5.00,
     ['vegetarian','vegan','lactose-free','gluten-free']),
 ];
 
