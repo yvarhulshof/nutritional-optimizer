@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "seed:foods": "npx tsx scripts/seedFoods.ts"
   },
   "dependencies": {
     "javascript-lp-solver": "^1.0.3",

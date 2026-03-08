@@ -35,7 +35,7 @@ function f(
 
 // [kcal, protein, fat, satFat, carbs, fiber, sugar, sodium, calcium, iron, potassium,
 //  vitC, vitD(mcg), B12(mcg), folate(mcg), magnesium, zinc, omega3], costPer100g (EUR), dietaryTags
-export const COMMON_FOODS: StaticFood[] = [
+export const CURATED_FOODS: StaticFood[] = [
   // ── Meats & Poultry ──────────────────────────────────────────────────────────
   f('171477','Chicken, breast, boneless, skinless, raw','Poultry Products',
     [120,22.5,2.6,0.74,0,0,0,74,11,0.37,256,0,0,0.3,4,28,0.7,0.06], 0.85,
@@ -250,6 +250,10 @@ export const COMMON_FOODS: StaticFood[] = [
     [     0,   0,   0,   0,   0,  0,   0,   0,   0,   0,   0,   0,    0, 250,   0,  0,  0,  0], 5.00,
     ['vegetarian','vegan','lactose-free','gluten-free']),
 ];
+
+import { GENERATED_FOODS } from './generatedFoods';
+
+export const COMMON_FOODS: StaticFood[] = [...CURATED_FOODS, ...GENERATED_FOODS];
 
 const nameIndex = COMMON_FOODS.map((f) => ({
   food: f,
