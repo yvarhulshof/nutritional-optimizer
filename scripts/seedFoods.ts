@@ -110,7 +110,7 @@ function serializeEntry(
   // Format numbers: trim trailing zeros but keep enough precision
   const n = (v: number) => (v === 0 ? '0' : parseFloat(v.toFixed(4)));
   return `  {
-    result: { id: '${fdcId}', source: 'USDA' as const, name: ${JSON.stringify(name)}, category: ${JSON.stringify(category ?? '')}, dietaryTags: ${tagsStr} },
+    result: { id: '${fdcId}', source: 'USDA' as const, name: ${JSON.stringify(name)}, category: ${JSON.stringify(typeof category === 'string' ? category : '')}, dietaryTags: ${tagsStr} },
     costPer100g: ${cost},
     profile: {
       energyKcal: ${n(p.energyKcal)}, proteinG: ${n(p.proteinG)}, fatG: ${n(p.fatG)}, saturatedFatG: ${n(p.saturatedFatG)},
@@ -164,7 +164,13 @@ async function main() {
       for (const raw of details) {
         const fdcId = raw.fdcId as number;
         const name = raw.description as string ?? '';
-        const category = (raw.foodCategory as string | undefined);
+        const rawCat = raw.foodCategory;
+        let category: string | undefined;
+        if (typeof rawCat === 'string') {
+          category = rawCat;
+        } else if (rawCat != null && typeof (rawCat as { description?: unknown }).description === 'string') {
+          category = (rawCat as { description: string }).description;
+        }
         const profile = normalizeUsdaFood(raw);
 
         // Skip foods with no energy data (likely incomplete/invalid)
