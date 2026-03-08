@@ -19,6 +19,8 @@ interface ConstraintsPanelProps {
   onReset: () => void;
   diet: DietaryTag[];
   onDietChange: (diet: DietaryTag[]) => void;
+  useExtended: boolean;
+  onExtendedChange: (v: boolean) => void;
   candidateFoods: SelectedFood[];
 }
 
@@ -30,6 +32,8 @@ export function ConstraintsPanel({
   onReset,
   diet,
   onDietChange,
+  useExtended,
+  onExtendedChange,
   candidateFoods,
 }: ConstraintsPanelProps) {
   const toggleDiet = (tag: DietaryTag) => {
@@ -72,6 +76,31 @@ export function ConstraintsPanel({
                     }`}
                   >
                     {label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Food list toggle */}
+          <div className="mt-4">
+            <p className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
+              Food List
+            </p>
+            <div className="flex gap-1.5">
+              {(['standard', 'extended'] as const).map((mode) => {
+                const active = mode === 'extended' ? useExtended : !useExtended;
+                return (
+                  <button
+                    key={mode}
+                    onClick={() => onExtendedChange(mode === 'extended')}
+                    className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${
+                      active
+                        ? 'bg-green-600 border-green-600 text-white'
+                        : 'bg-white border-gray-200 text-gray-500 hover:border-green-400 hover:text-green-600'
+                    }`}
+                  >
+                    {mode.charAt(0).toUpperCase() + mode.slice(1)}
                   </button>
                 );
               })}

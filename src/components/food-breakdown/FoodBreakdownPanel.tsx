@@ -18,7 +18,8 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 export function FoodBreakdownPanel({ quantities }: Props) {
-  const foods = quantities.map((q) => q.food);
+  const sorted = [...quantities].sort((a, b) => b.grams - a.grams);
+  const foods = sorted.map((q) => q.food);
 
   return (
     <div className="p-5 space-y-10">
@@ -37,7 +38,7 @@ export function FoodBreakdownPanel({ quantities }: Props) {
           </Section>
 
           <Section title="Nutrient Contribution Pies — each food's actual share of the day's total">
-            <NutrientContributionPieGrid quantities={quantities} />
+            <NutrientContributionPieGrid quantities={sorted} />
           </Section>
 
           <Section title="Cost vs. Nutrient — dot size = calories (per 100g)">

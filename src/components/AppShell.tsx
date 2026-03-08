@@ -6,26 +6,33 @@ import { SelectedFood, DietaryTag } from '../types/food';
 import { FoodQuantity } from '../types/solver';
 import { NutrientConstraint, ObjectiveType } from '../types/constraints';
 import { DEFAULT_CONSTRAINTS } from '../lib/nutrition/defaults';
-import { COMMON_FOODS } from '../lib/nutrition/commonFoods';
+import { COMMON_FOODS, CURATED_FOODS } from '../lib/nutrition/commonFoods';
 import { useOptimizer } from '../hooks/useOptimizer';
 import { FoodBreakdownPanel } from './food-breakdown/FoodBreakdownPanel';
 
-const ALL_FOODS: SelectedFood[] = COMMON_FOODS.map((sf) => ({
-  searchResult: sf.result,
-  nutrientProfile: sf.profile,
-  costPer100g: sf.costPer100g,
-}));
+function toSelectedFoods(list: typeof COMMON_FOODS): SelectedFood[] {
+  return list.map((sf) => ({
+    searchResult: sf.result,
+    nutrientProfile: sf.profile,
+    costPer100g: sf.costPer100g,
+  }));
+}
+
+const STANDARD_FOODS: SelectedFood[] = toSelectedFoods(CURATED_FOODS);
+const EXTENDED_FOODS: SelectedFood[] = toSelectedFoods(COMMON_FOODS);
 
 export function AppShell() {
   const [diet, setDiet] = useState<DietaryTag[]>([]);
+  const [useExtended, setUseExtended] = useState(false);
   const [objective, setObjective] = useState<ObjectiveType>('minimize_cost');
   const [constraints, setConstraints] = useState<NutrientConstraint[]>(
     DEFAULT_CONSTRAINTS.map((c) => ({ ...c }))
   );
 
+  const foodPool = useExtended ? EXTENDED_FOODS : STANDARD_FOODS;
   const filteredFoods = diet.length === 0
-    ? ALL_FOODS
-    : ALL_FOODS.filter((f) =>
+    ? foodPool
+    : foodPool.filter((f) =>
         diet.every((tag) => f.searchResult.dietaryTags?.includes(tag))
       );
 
@@ -85,6 +92,8 @@ export function AppShell() {
             onReset={handleReset}
             diet={diet}
             onDietChange={setDiet}
+            useExtended={useExtended}
+            onExtendedChange={setUseExtended}
             candidateFoods={filteredFoods}
           />
         </div>
