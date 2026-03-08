@@ -74,7 +74,12 @@ async function fetchPage(pageNumber: number): Promise<Array<{ fdcId: number; des
 
   const res = await fetch(url.toString());
   if (!res.ok) throw new Error(`List page ${pageNumber} failed: ${res.status} ${res.statusText}`);
-  return res.json();
+  const data = await res.json();
+  // USDA /foods/list returns a bare array, but guard against wrapped responses
+  if (Array.isArray(data)) return data;
+  if (data && Array.isArray(data.foods)) return data.foods;
+  console.error('\nUnexpected /foods/list response:', JSON.stringify(data).slice(0, 300));
+  return [];
 }
 
 /** Batch-fetch full food details for up to 20 fdcIds at once. */
@@ -85,7 +90,11 @@ async function fetchBatch(fdcIds: number[]): Promise<Record<string, unknown>[]> 
     body: JSON.stringify({ fdcIds, format: 'full' }),
   });
   if (!res.ok) throw new Error(`Batch fetch failed: ${res.status} ${res.statusText}`);
-  return res.json();
+  const data = await res.json();
+  if (Array.isArray(data)) return data;
+  if (data && Array.isArray(data.foods)) return data.foods;
+  console.error('\nUnexpected /foods batch response:', JSON.stringify(data).slice(0, 300));
+  return [];
 }
 
 function serializeEntry(
